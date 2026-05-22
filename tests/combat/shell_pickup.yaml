@@ -1,0 +1,11 @@
+scenario: shell_pickup
+description: Player spawns on a single shell pickup in an enemy-free arena; frame-1 pickup-check consumes the shell, raising player.shells from 0 to 4 while bullets remain at 50 (specs/15 § ShellPickup, specs/25 § Pickups § Player Ammo Pools)
+level: shell_pickup
+
+objectives:
+  - wait: 30
+
+assertions:
+  - player.alive: true
+  - player.bullets: "== 50"
+  - player.shells: "== 4"
