@@ -225,6 +225,35 @@ public_methods:
            Single-enemy fixtures behave identically to the legacy
            "first alive" rule because there is only one candidate.
            See spec/30 § Targets.
+
+           Named-target resolver (`resolve_named_target` helper,
+           module-private). MUST support the full target name set
+           pinned in specs/30 § Available Targets:
+             "exit"           -> Some(game.level.exit)
+             "spawn"          -> Some(game.level.player_spawn)
+             "enemy"          -> nearest_alive_enemy(game)
+             "pickup_health"  -> first active Pickup with
+                                 kind == PickupKind::Health
+             "pickup_ammo"    -> first active Pickup with
+                                 kind == PickupKind::AmmoBullets
+                                 (backwards-compat alias for
+                                 pre-ammo-split fixtures —
+                                 specs/30 § Available Targets)
+             "pickup_shells"  -> first active Pickup with
+                                 kind == PickupKind::AmmoShells
+                                 (new in the 2026-05-18 ammo-split
+                                 slice — specs/30 § Available Targets)
+           Any name listed in specs/30 § Available Targets as
+           implemented MUST appear in the match. Names listed as
+           deferred (or not listed at all) MUST NOT appear — the
+           resolver falls through to the `_ => None` arm so
+           `check_objective_complete`'s None branch auto-completes
+           the objective (spec/30 § Targets `reach: pickup_<kind>`
+           completion rule). The `pickup_shells` arm was added in
+           this pass after the 2026-05-18 release Reconciler caught
+           the Coder shipping only the `pickup_health` and
+           `pickup_ammo` cases despite specs/30 § Available Targets
+           listing `pickup_shells` as implemented.
         2. Turn toward target_pos (apply BOT_TURN_THRESHOLD dead-zone).
         3. Movement mode:
            - kite (forward = -1.0) if the active objective targets an
